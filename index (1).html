@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d0820">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>Jyotish SBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#080614;--bg1:#100c24;--bg2:#1a1238;--bg3:#231848;
+  --gold:#e8c97a;--gold2:#c9a950;
+  --purple:#9b6dff;--purple2:#6a3fd4;
+  --text:#e8e0ff;--text2:#9b8dc0;--text3:#5a4d80;
+  --border:rgba(155,109,255,0.18);--border2:rgba(155,109,255,0.35);
+  --r-nak:#12093a;--r-ak:#091228;--r-rs:#081e14;--r-va:#1e1208;--r-cn:#1a0828;
+  --nak-t:#c8a8ff;--ak-t:#88ccff;--rs-t:#66ffcc;--va-t:#ffcc66;--vow-t:#ffe066;--cn-t:#ff88cc;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg0);font-family:'Nunito',sans-serif;color:var(--text);}
+#app{display:flex;flex-direction:column;height:100%;height:100dvh;}
+.status-space{height:var(--safe-top);background:var(--bg0);}
+.topbar{background:var(--bg1);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.topbar-icon{font-size:26px;animation:spin 20s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.topbar-text{flex:1;}
+.topbar-title{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--gold);}
+.topbar-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+.topbar-aybadge{font-size:9px;color:var(--gold);background:rgba(232,201,122,0.12);border:1px solid rgba(232,201,122,0.3);border-radius:20px;padding:3px 8px;white-space:nowrap;font-weight:600;}
+.tabbar{display:flex;background:var(--bg0);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;text-align:center;padding:9px 4px 8px;font-size:10px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;}
+.tab .ti{font-size:16px;line-height:1;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.content::-webkit-scrollbar{display:none;}
+.section{display:none;padding:12px;padding-bottom:calc(12px + var(--safe-bot));}
+.section.active{display:block;}
+#sbc.section{padding:10px 8px;padding-bottom:calc(10px + var(--safe-bot));}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.card-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-family:'Cinzel',serif;}
+.ay-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+.ay-btn{padding:10px 8px;border-radius:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer;text-align:center;transition:all 0.2s;font-family:'Nunito',sans-serif;font-weight:600;}
+.ay-btn .ay-deg{font-size:9px;opacity:0.65;display:block;margin-top:2px;font-weight:400;}
+.ay-btn.active{background:rgba(232,201,122,0.1);border-color:var(--gold);color:var(--gold);}
+.ay-desc{font-size:11px;color:var(--text2);line-height:1.6;background:var(--bg2);border-radius:8px;padding:10px;}
+.ay-desc strong{color:var(--gold);}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.ig{display:flex;flex-direction:column;gap:5px;}
+.ig label{font-size:11px;color:var(--text3);font-weight:600;}
+.ig input,.ig select{font-size:14px;padding:9px 11px;border-radius:9px;background:var(--bg0);border:1px solid var(--border2);color:var(--text);width:100%;font-family:'Nunito',sans-serif;font-weight:500;-webkit-appearance:none;}
+.ig input:focus,.ig select:focus{outline:none;border-color:var(--gold);}
+.ig-full{margin-bottom:8px;}
+.btn-calc{width:100%;padding:13px;background:linear-gradient(135deg,#e8c97a,#c9a94a);color:#0d0820;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:0.5px;margin-top:4px;}
+.btn-calc:active{opacity:0.82;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.ic{background:var(--bg0);border:1px solid var(--border);border-radius:10px;padding:9px 11px;}
+.il{font-size:10px;color:var(--text3);font-weight:600;}
+.iv{font-size:13px;font-weight:600;color:var(--text);margin-top:3px;}
+
+/* SBC GRID */
+.sbc-header{display:flex;justify-content:space-between;align-items:center;padding:0 4px;margin-bottom:8px;}
+.sbc-header-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);font-weight:700;}
+.sbc-aybadge{font-size:9px;color:var(--gold);background:rgba(232,201,122,0.12);border:1px solid rgba(232,201,122,0.3);border-radius:20px;padding:3px 9px;font-weight:700;}
+.sbc-grid-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:8px;margin-bottom:10px;}
+.sbc-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:rgba(155,109,255,0.15);border:2px solid rgba(155,109,255,0.4);border-radius:10px;overflow:hidden;width:100%;}
+.sc{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;padding:1px;cursor:pointer;transition:filter 0.1s;position:relative;min-width:0;overflow:hidden;}
+.sc:active{filter:brightness(1.4);}
+.r-nak{background:var(--r-nak);}
+.r-vow{background:#1a1208;}
+.r-ak{background:var(--r-ak);}
+.r-rs{background:var(--r-rs);}
+.r-va{background:var(--r-va);}
+.r-cn{background:var(--r-cn);}
+.hl-nak{background:#2a1500 !important;outline:2px solid var(--gold);outline-offset:-2px;z-index:2;}
+.hl-rs{background:#003a20 !important;outline:2px solid #66ffcc;outline-offset:-2px;z-index:2;}
+/* Vedha highlight on grid */
+.vh-across{background:#2a0a0a !important;outline:1px solid #ff5555;outline-offset:-1px;}
+.vh-fore{background:#0a2a0a !important;outline:1px solid #55ff88;outline-offset:-1px;}
+.vh-hind{background:#0a0a2a !important;outline:1px solid #5588ff;outline-offset:-1px;}
+.cm{font-size:clamp(7px,2.2vw,11px);font-weight:600;text-align:center;line-height:1.1;word-break:break-all;}
+.cs{font-size:clamp(5px,1.5vw,8px);text-align:center;opacity:0.7;line-height:1;margin-top:1px;}
+.r-nak .cm{color:var(--nak-t);}
+.r-vow .cm{color:var(--vow-t);font-size:clamp(8px,2.8vw,14px);}
+.r-ak .cm{color:var(--ak-t);}
+.r-rs .cm{color:var(--rs-t);}
+.r-va .cm{color:var(--va-t);}
+.r-cn .cm{color:var(--cn-t);font-size:clamp(9px,3vw,15px);}
+.r-nak .cs{color:#7060aa;}
+.pdots{display:flex;flex-wrap:wrap;justify-content:center;gap:1px;margin-bottom:1px;}
+.pd{width:clamp(10px,3vw,15px);height:clamp(10px,3vw,15px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(5px,1.8vw,8px);font-weight:700;color:#fff;flex-shrink:0;}
+.legend{display:flex;flex-wrap:wrap;gap:7px;padding:0 2px;margin-top:8px;}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);font-weight:600;}
+.ld{width:11px;height:11px;border-radius:3px;}
+.planet-pills{display:flex;flex-wrap:wrap;gap:5px;padding:0 2px;margin-top:8px;}
+.pp{display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid transparent;}
+.ppd{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0;}
+.cell-popup{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px;margin-top:8px;animation:slideUp 0.2s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.popup-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;}
+.popup-body{font-size:11px;color:var(--text2);line-height:1.8;}
+.popup-body strong{color:var(--text);}
+
+/* VEDHA */
+.vedha-item{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.vedha-item:last-child{border-bottom:none;}
+.vedha-item:active{opacity:0.7;}
+.vedha-left{display:flex;align-items:center;gap:10px;}
+.vedha-pname{font-size:13px;font-weight:600;color:var(--text);}
+.vedha-info{font-size:10px;color:var(--text3);margin-top:2px;}
+.vedha-nak{font-size:10px;color:var(--nak-t);margin-top:1px;}
+.vtag{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:700;flex-shrink:0;}
+.vb{background:rgba(102,255,136,0.1);color:#66ff88;border:1px solid rgba(102,255,136,0.25);}
+.vm{background:rgba(255,88,88,0.1);color:#ff8888;border:1px solid rgba(255,88,88,0.25);}
+.vedha-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.vs-card{background:var(--bg0);border-radius:10px;padding:12px;text-align:center;}
+.vs-num{font-size:30px;font-weight:700;font-family:'Cinzel',serif;}
+.vs-lbl{font-size:10px;color:var(--text3);font-weight:600;margin-top:2px;}
+
+/* Vedha detail expanded */
+.vedha-detail{background:var(--bg2);border-radius:10px;padding:10px;margin-top:6px;font-size:11px;color:var(--text2);line-height:1.7;display:none;}
+.vedha-detail.open{display:block;animation:slideUp 0.2s ease;}
+.vd-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(155,109,255,0.1);}
+.vd-row:last-child{border-bottom:none;}
+.vd-label{color:var(--text3);}
+.vd-val{color:var(--text);font-weight:500;}
+
+/* VEDHA GRID LEGEND */
+.vh-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.vhl{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);}
+.vhld{width:12px;height:12px;border-radius:3px;}
+
+/* NAK LIST */
+.nrow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.nrow:last-child{border-bottom:none;}
+.nrow.janma{background:rgba(232,201,122,0.07);border-radius:8px;padding:8px 10px;margin:2px -4px;}
+.nnum{font-size:10px;color:var(--text3);width:20px;font-weight:600;}
+.nname{font-size:12px;font-weight:600;color:var(--nak-t);flex:1;}
+.nname.janma{color:var(--gold);}
+.nlord{font-size:10px;color:var(--text3);width:22px;text-align:center;}
+.nplanets{display:flex;gap:2px;}
+.npd{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;}
+
+/* Tap hint */
+.tap-hint{font-size:10px;color:var(--text3);text-align:center;margin-top:4px;padding:4px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="status-space"></div>
+  <div class="topbar">
+    <div class="topbar-icon">☸</div>
+    <div class="topbar-text">
+      <div class="topbar-title">Jyotish SBC</div>
+      <div class="topbar-sub">Sarvatobhadra Chakra · Vedic Transit</div>
+    </div>
+    <div class="topbar-aybadge" id="topbar-ay">Pushya Paksha</div>
+  </div>
+  <div class="tabbar">
+    <div class="tab active" onclick="showTab('data',this)"><span class="ti">☽</span>Data</div>
+    <div class="tab" onclick="showTab('sbc',this)"><span class="ti">⊞</span>SBC</div>
+    <div class="tab" onclick="showTab('vedha',this)"><span class="ti">◈</span>Vedha</div>
+    <div class="tab" onclick="showTab('naks',this)"><span class="ti">✦</span>Naks</div>
+  </div>
+  <div class="content">
+
+    <!-- DATA -->
+    <div id="data" class="section active">
+      <div class="card">
+        <div class="card-title">Ayanamsa / Anyamasa</div>
+        <div class="ay-grid">
+          <div class="ay-btn active" onclick="selectAy('pushya',this)">Pushya Paksha<span class="ay-deg">KP · 23.94°</span></div>
+          <div class="ay-btn" onclick="selectAy('lahiri',this)">Lahiri<span class="ay-deg">Chitra · 23.85°</span></div>
+          <div class="ay-btn" onclick="selectAy('raman',this)">B.V. Raman<span class="ay-deg">22.46°</span></div>
+          <div class="ay-btn" onclick="selectAy('yukteswar',this)">Sri Yukteswar<span class="ay-deg">22.39°</span></div>
+        </div>
+        <div class="ay-desc" id="ay-desc"><strong>Pushya Paksha (KP):</strong> Anchors zodiac to Delta Cancri. Used in KP astrology for precise nakshatra-pada calculations. ~0.09° higher than Lahiri.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Birth Details</div>
+        <div class="input-grid">
+          <div class="ig"><label>Date of Birth</label><input type="date" id="dob" value="1990-01-15"></div>
+          <div class="ig"><label>Time of Birth</label><input type="time" id="tob" value="10:30"></div>
+        </div>
+        <div class="input-grid">
+          <div class="ig"><label>Latitude</label><input type="number" id="lat" value="17.38" step="0.01"></div>
+          <div class="ig"><label>Longitude</label><input type="number" id="lon" value="78.47" step="0.01"></div>
+        </div>
+        <div class="ig ig-full"><label>Name (Akshara)</label><input type="text" id="iname" placeholder="Enter your name..." value="Arjun"></div>
+        <button class="btn-calc" onclick="calculate()">✦ Calculate SBC</button>
+      </div>
+      <div class="card" id="result-card" style="display:none">
+        <div class="card-title">Calculated Chart Data</div>
+        <div class="info-grid" id="result-grid"></div>
+        <div style="margin-top:10px;font-size:10px;color:var(--text3);text-align:center">Ayanamsa: <span id="result-ay-val" style="color:var(--gold)">—</span></div>
+      </div>
+    </div>
+
+    <!-- SBC -->
+    <div id="sbc" class="section">
+      <div class="sbc-header">
+        <div class="sbc-header-title">☸ 9 × 9 Sarvatobhadra</div>
+        <div class="sbc-aybadge" id="sbc-ay-lbl">Pushya Paksha</div>
+      </div>
+      <div class="sbc-grid-wrap">
+        <div class="sbc-grid" id="sbc-grid"></div>
+        <div class="legend">
+          <div class="leg"><div class="ld" style="background:var(--r-nak);border:1px solid var(--nak-t)"></div>Nakshatra</div>
+          <div class="leg"><div class="ld" style="background:var(--r-ak);border:1px solid var(--ak-t)"></div>Akshara</div>
+          <div class="leg"><div class="ld" style="background:var(--r-rs);border:1px solid var(--rs-t)"></div>Rasi</div>
+          <div class="leg"><div class="ld" style="background:var(--r-va);border:1px solid var(--va-t)"></div>Vara</div>
+          <div class="leg"><div class="ld" style="background:#2a1500;border:2px solid var(--gold)"></div>Natal</div>
+        </div>
+        <div class="planet-pills" id="planet-pills"></div>
+      </div>
+      <div class="tap-hint" id="tap-hint">Tap any cell to see details</div>
+      <div id="cell-popup" style="display:none">
+        <div class="cell-popup">
+          <div class="popup-title" id="popup-title">—</div>
+          <div class="popup-body" id="popup-body">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VEDHA -->
+    <div id="vedha" class="section">
+      <div id="no-calc-msg" class="card" style="text-align:center;padding:24px">
+        <div style="font-size:30px;margin-bottom:10px">◈</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px">No data yet</div>
+        <div style="font-size:11px;color:var(--text3)">Go to Data tab → enter birth details → tap Calculate SBC</div>
+      </div>
+
+      <div id="vedha-content" style="display:none">
+        <div class="card">
+          <div class="card-title">Vedha Summary</div>
+          <div class="vedha-sum">
+            <div class="vs-card" style="border:1px solid rgba(102,255,136,0.2)">
+              <div class="vs-num" style="color:#66ff88" id="ben-count">0</div>
+              <div class="vs-lbl">Benefic Vedha</div>
+            </div>
+            <div class="vs-card" style="border:1px solid rgba(255,88,88,0.2)">
+              <div class="vs-num" style="color:#ff8888" id="mal-count">0</div>
+              <div class="vs-lbl">Malefic Vedha</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6;background:var(--bg2);border-radius:8px;padding:10px;" id="vedha-verdict">—</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Planet-wise Vedha — tap to expand</div>
+          <div class="vh-legend">
+            <div class="vhl"><div class="vhld" style="background:#2a0a0a;border:1px solid #ff5555"></div>Across vedha</div>
+            <div class="vhl"><div class="vhld" style="background:#0a2a0a;border:1px solid #55ff88"></div>Fore vedha</div>
+            <div class="vhl"><div class="vhld" style="background:#0a0a2a;border:1px solid #5588ff"></div>Hind vedha</div>
+          </div>
+          <div id="vedha-list"></div>
+        </div>
+
+        <div class="card" style="font-size:11px;color:var(--text2);line-height:1.6;">
+          <div class="card-title">Vedha Types Explained</div>
+          <p><strong style="color:var(--text)">Across vedha</strong> — horizontal or vertical line from transiting planet. Most effective when planet is stationary or at normal speed.</p>
+          <br>
+          <p><strong style="color:var(--text)">Fore vedha</strong> — clockwise diagonal. Effective when planet moves fast. Sun and Moon always cast fore vedha.</p>
+          <br>
+          <p><strong style="color:var(--text)">Hind vedha</strong> — anti-clockwise diagonal. Effective during retrograde. Rahu and Ketu always cast hind vedha.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAKS -->
+    <div id="naks" class="section">
+      <div class="card">
+        <div class="card-title">28 Nakshatras (incl. Abhijit ✦)</div>
+        <div id="nak-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+const NAKS=["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Abhijit","Shravana","Dhanishtha","Shatabhisha","Purva Bhadra","Uttara Bhadra","Revati"];
+const NSHORT=["Asw","Bha","Kri","Roh","Mri","Ard","Pun","Pus","Asl","Mag","PPh","UPh","Has","Chi","Swa","Vis","Anu","Jye","Mul","PAs","UAs","Abh","Shr","Dha","Sha","PBh","UBh","Rev"];
+const NLORD=["Ke","Ve","Su","Mo","Ma","Ra","Ju","Sa","Me","Ke","Ve","Su","Mo","Ma","Ra","Ju","Sa","Me","Ke","Ve","Su","—","Mo","Ma","Ra","Ju","Sa","Me"];
+const RASIS=["Ar","Ta","Ge","Cn","Le","Vi","Li","Sc","Sg","Cp","Aq","Pi"];
+const RASIF=["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+const VARAF=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const TGRP=["Nanda","Bhadra","Jaya","Rikta","Purna"];
+const PL=["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"];
+const PLF=["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"];
+const PCOL=["#ffaa22","#66aaff","#ff5555","#44dd88","#bb88ff","#ff66bb","#6699cc","#9944ee","#dd8822"];
+const BEN=["Mo","Me","Ju","Ve"];
+const AY={pushya:23.94,lahiri:23.85,raman:22.46,yukteswar:22.39};
+const AYNAME={pushya:"Pushya Paksha",lahiri:"Lahiri",raman:"B.V. Raman",yukteswar:"Yukteswar"};
+const AYDESC={
+  pushya:"<strong>Pushya Paksha (KP):</strong> Anchors zodiac to Delta Cancri (Pushya star). Used in KP astrology for precise nakshatra-pada calculations. ~0.09° higher than Lahiri.",
+  lahiri:"<strong>Lahiri (Chitra Paksha):</strong> Official ayanamsa of India's Rashtriya Panchang. Based on Spica (Chitra) at 180°. Most widely used system across India.",
+  raman:"<strong>B.V. Raman:</strong> Introduced by the renowned astrologer B.V. Raman. ~1.48° less than Lahiri. Places planets slightly earlier in nakshatras.",
+  yukteswar:"<strong>Sri Yukteswar:</strong> Based on teachings in 'The Holy Science'. Significantly different from Lahiri (~1.46° less). Used in certain spiritual traditions."
+};
+
+let S={ay:'pushya',grid:null,planets:null,nakP:[],jNak:0,jRasi:0,jVara:0,jTithi:0,calc:false,openVedha:-1};
+
+// Grid position map: which [row,col] each nakshatra index lives in
+let GRID_POS={};
+
+function selectAy(id,el){
+  S.ay=id;
+  document.querySelectorAll('.ay-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ay-desc').innerHTML=AYDESC[id];
+  document.getElementById('topbar-ay').textContent=AYNAME[id];
+  document.getElementById('sbc-ay-lbl').textContent=AYNAME[id];
+  if(S.calc) calculate();
+}
+
+function getJD(y,m,d,h){if(m<=2){y--;m+=12;}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+h/24+B-1524.5;}
+function sunL(jd){const n=jd-2451545,L=(280.46+0.9856474*n)%360,g=(357.528+0.9856003*n)*Math.PI/180;return(L+1.915*Math.sin(g)+0.02*Math.sin(2*g)+360)%360;}
+function moonL(jd){const n=jd-2451545,L=(218.316+13.176396*n)%360,M=(134.963+13.064993*n)*Math.PI/180,F=(93.272+13.22935*n)*Math.PI/180;return(L+6.289*Math.sin(M)-1.274*Math.sin(M-2*F)+0.658*Math.sin(2*F)+360)%360;}
+function pL(jd,L0,r){return((L0+r*(jd-2451545))%360+360)%360;}
+function sid(l){return((l-AY[S.ay])+360)%360;}
+function getLongs(jd){
+  const rahu=((125.045-0.0529539*(jd-2451545))%360+360)%360;
+  return[sid(sunL(jd)),sid(moonL(jd)),sid(pL(jd,355.45,0.524)),sid(pL(jd,77.46,4.0923)),
+    sid(pL(jd,34.35,0.0831)),sid(pL(jd,181.98,1.6021)),sid(pL(jd,50.08,0.0334)),
+    sid(rahu),sid((rahu+180)%360)];
+}
+function lonToNak(l){if(l>=266.667&&l<=270.889)return 21;return Math.min(27,Math.floor(l/(360/27)));}
+function lonToRasi(l){return Math.floor(l/30);}
+
+function buildGrid(){
+  const g=[];
+  for(let r=0;r<9;r++){g[r]=[];for(let c=0;c<9;c++)g[r][c]={type:'',label:'',ring:0};}
+  const nk=[27,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26];
+  GRID_POS={};
+  for(let c=1;c<=7;c++){const idx=nk[c-1];g[0][c]={type:'nak',label:NSHORT[idx],full:NAKS[idx],idx,ring:4};GRID_POS[idx]=[0,c];}
+  for(let r=1;r<=7;r++){const idx=nk[6+r];g[r][8]={type:'nak',label:NSHORT[idx],full:NAKS[idx],idx,ring:4};GRID_POS[idx]=[r,8];}
+  for(let c=7;c>=1;c--){const idx=nk[14+(7-c)];g[8][c]={type:'nak',label:NSHORT[idx],full:NAKS[idx],idx,ring:4};GRID_POS[idx]=[8,c];}
+  for(let r=7;r>=1;r--){const idx=nk[21+(7-r)];g[r][0]={type:'nak',label:NSHORT[idx],full:NAKS[idx],idx,ring:4};GRID_POS[idx]=[r,0];}
+  g[0][0]={type:'vow',label:'अ',ring:4};g[0][8]={type:'vow',label:'इ',ring:4};
+  g[8][0]={type:'vow',label:'उ',ring:4};g[8][8]={type:'vow',label:'ए',ring:4};
+  const aT=['क','ख','ग','घ','ङ','च','छ'],aR=['ज','झ','ञ','ट','ठ','ड','ढ'],aB=['ण','त','थ','द','ध','न','प'],aL=['फ','ब','भ','म','य','र','ल'];
+  for(let c=1;c<=7;c++)g[1][c]={type:'ak',label:aT[c-1],ring:3};
+  for(let r=1;r<=7;r++)g[r][7]={type:'ak',label:aR[r-1],ring:3};
+  for(let c=7;c>=1;c--)g[7][c]={type:'ak',label:aB[7-c],ring:3};
+  for(let r=7;r>=1;r--)g[r][1]={type:'ak',label:aL[7-r],ring:3};
+  const dv=[['ā',2,2],['ī',6,6],['ū',2,6],['ṛ',6,2],['ḷ',3,3],['e',5,5],['ai',3,5],['o',5,3]];
+  for(const[v,r,c]of dv)if(!g[r][c].label)g[r][c]={type:'ak',label:v,ring:3};
+  const rp=[[2,3],[2,4],[2,5],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[5,2],[4,2],[3,2]];
+  for(let i=0;i<12;i++)g[rp[i][0]][rp[i][1]]={type:'rs',label:RASIS[i],full:RASIF[i],idx:i,ring:2};
+  const vp=[[3,3],[3,4],[3,5],[4,5],[5,5],[5,4],[5,3],[4,3]];
+  const vl=['Sun','Mon','Tue','Wed','Nan','Bha','Jay','Pur'];
+  for(let i=0;i<vp.length;i++)if(!g[vp[i][0]][vp[i][1]].label)g[vp[i][0]][vp[i][1]]={type:'va',label:vl[i],ring:1};
+  g[4][4]={type:'cn',label:'ॐ',ring:0};
+  return g;
+}
+
+// Get all cells in the vedha lines from a given [row,col]
+// Across = same row + same col. Fore = clockwise diagonal. Hind = anti-clockwise diagonal.
+function getVedhaCells(row,col,vtype){
+  const cells=[];
+  if(vtype==='across'){
+    for(let c=0;c<9;c++)if(c!==col)cells.push({r:row,c,vt:'across'});
+    for(let r=0;r<9;r++)if(r!==row)cells.push({r,c:col,vt:'across'});
+  } else if(vtype==='fore'){
+    // Clockwise diagonal (top-left to bottom-right AND top-right to bottom-left)
+    for(let i=-8;i<=8;i++){
+      if(i===0)continue;
+      if(row+i>=0&&row+i<9&&col+i>=0&&col+i<9)cells.push({r:row+i,c:col+i,vt:'fore'});
+      if(row+i>=0&&row+i<9&&col-i>=0&&col-i<9)cells.push({r:row+i,c:col-i,vt:'fore'});
+    }
+  } else if(vtype==='hind'){
+    for(let i=-8;i<=8;i++){
+      if(i===0)continue;
+      if(row-i>=0&&row-i<9&&col+i>=0&&col+i<9)cells.push({r:row-i,c:col+i,vt:'hind'});
+      if(row-i>=0&&row-i<9&&col-i>=0&&col-i<9)cells.push({r:row-i,c:col-i,vt:'hind'});
+    }
+  }
+  return cells;
+}
+
+function calculate(){
+  const dob=document.getElementById('dob').value;
+  const tob=document.getElementById('tob').value;
+  if(!dob||!tob)return;
+  const[y,m,d]=dob.split('-').map(Number);
+  const[hh,mm]=tob.split(':').map(Number);
+  const lonV=parseFloat(document.getElementById('lon').value)||78.47;
+  const jd=getJD(y,m,d,hh+mm/60-lonV/15);
+  const longs=getLongs(jd);
+  S.planets=longs;S.calc=true;S.openVedha=-1;
+  S.jNak=lonToNak(longs[1]);
+  S.jRasi=lonToRasi(longs[1]);
+  S.jVara=new Date(dob).getDay();
+  S.jTithi=Math.floor(((longs[1]-longs[0]+360)%360)/12)%5;
+  S.nakP=longs.map(l=>lonToNak(l));
+  S.grid=buildGrid();
+
+  document.getElementById('result-card').style.display='';
+  document.getElementById('result-ay-val').textContent=AYNAME[S.ay]+' · '+AY[S.ay].toFixed(2)+'°';
+  document.getElementById('result-grid').innerHTML=`
+    <div class="ic"><div class="il">Janma Nakshatra</div><div class="iv">${NAKS[S.jNak]}</div></div>
+    <div class="ic"><div class="il">Janma Rasi</div><div class="iv">${RASIF[S.jRasi]}</div></div>
+    <div class="ic"><div class="il">Janma Vara</div><div class="iv">${VARAF[S.jVara]}</div></div>
+    <div class="ic"><div class="il">Janma Tithi</div><div class="iv">${TGRP[S.jTithi]}</div></div>
+    <div class="ic"><div class="il">Moon</div><div class="iv">${longs[1].toFixed(2)}°</div></div>
+    <div class="ic"><div class="il">Sun</div><div class="iv">${longs[0].toFixed(2)}°</div></div>
+  `;
+  renderSBC();
+  renderVedha();
+  renderNaks();
+  showTab('sbc',document.querySelectorAll('.tab')[1]);
+}
+
+function renderSBC(highlightCells){
+  const g=S.grid;if(!g)return;
+  const el=document.getElementById('sbc-grid');el.innerHTML='';
+  // Build a set of highlighted cells
+  const hlMap={};
+  if(highlightCells){
+    for(const hc of highlightCells){
+      hlMap[hc.r+','+hc.c]=hc.vt;
+    }
+  }
+  for(let r=0;r<9;r++){
+    for(let c=0;c<9;c++){
+      const cell=g[r][c];
+      const div=document.createElement('div');
+      div.className='sc';
+      const rc={'nak':'r-nak','vow':'r-vow','ak':'r-ak','rs':'r-rs','va':'r-va','cn':'r-cn'}[cell.type]||'r-nak';
+      div.classList.add(rc);
+      if(cell.type==='nak'&&S.nakP&&cell.idx===S.jNak)div.classList.add('hl-nak');
+      if(cell.type==='rs'&&cell.idx===S.jRasi)div.classList.add('hl-rs');
+      // Vedha highlight
+      const vhk=r+','+c;
+      if(hlMap[vhk]){
+        div.classList.remove(rc);
+        const vtCls={across:'vh-across',fore:'vh-fore',hind:'vh-hind'}[hlMap[vhk]];
+        div.classList.add(vtCls);
+      }
+      let pdH='';
+      if(cell.type==='nak'&&S.nakP){
+        const here=PL.map((p,i)=>S.nakP[i]===cell.idx?i:-1).filter(i=>i>=0);
+        if(here.length)pdH=`<div class="pdots">${here.map(i=>`<div class="pd" style="background:${PCOL[i]}">${PL[i]}</div>`).join('')}</div>`;
+      }
+      div.innerHTML=`${pdH}<div class="cm">${cell.label||''}</div>`;
+      div.onclick=()=>showPopup(r,c,cell);
+      el.appendChild(div);
+    }
+  }
+  document.getElementById('planet-pills').innerHTML=PL.map((p,i)=>{
+    const nak=S.nakP?NAKS[S.nakP[i]]||'?':'—';
+    const lon=S.planets?S.planets[i].toFixed(1)+'°':'';
+    return`<div class="pp" style="background:${PCOL[i]}18;border-color:${PCOL[i]}44;color:${PCOL[i]}"><div class="ppd" style="background:${PCOL[i]}">${p}</div><span style="font-size:9px">${nak.substring(0,9)} ${lon}</span></div>`;
+  }).join('');
+  document.getElementById('sbc-ay-lbl').textContent=AYNAME[S.ay];
+}
+
+function showPopup(r,c,cell){
+  document.getElementById('cell-popup').style.display='';
+  document.getElementById('tap-hint').style.display='none';
+  const here=S.nakP&&cell.type==='nak'?PL.map((p,i)=>S.nakP[i]===cell.idx?PLF[i]:null).filter(Boolean):[];
+  document.getElementById('popup-title').textContent=cell.full||cell.label||'Cell ('+r+','+c+')';
+  let body=`<strong>Type:</strong> ${cell.type||'—'} &nbsp;·&nbsp; <strong>Ring:</strong> ${['Center','Vara/Tithi','Rasi','Akshara','Nakshatra'][cell.ring]||'?'}`;
+  if(cell.type==='nak')body+=`<br><strong>Lord:</strong> ${NLORD[cell.idx]||'—'}`;
+  if(here.length)body+=`<br><strong>Planets here:</strong> ${here.map((n,i)=>`<span style="color:${PCOL[PL.indexOf(PL.find((_,j)=>PLF[j]===n))]||'#fff'}">${n}</span>`).join(', ')}`;
+  if(cell.type==='nak'&&cell.idx===S.jNak)body+=`<br><strong style="color:var(--gold)">★ Janma Nakshatra</strong>`;
+  if(cell.type==='rs'&&cell.idx===S.jRasi)body+=`<br><strong style="color:var(--rs-t)">★ Janma Rasi</strong>`;
+  document.getElementById('popup-body').innerHTML=body;
+}
+
+function renderVedha(){
+  if(!S.calc){
+    document.getElementById('no-calc-msg').style.display='';
+    document.getElementById('vedha-content').style.display='none';
+    return;
+  }
+  document.getElementById('no-calc-msg').style.display='none';
+  document.getElementById('vedha-content').style.display='';
+
+  let html='',ben=0,mal=0;
+  PL.forEach((p,i)=>{
+    const nak=S.nakP[i];
+    const isBen=BEN.includes(p);
+    const vtype=['Ra','Ke'].includes(p)?'hind':['Mo','Su'].includes(p)?'fore':'across';
+    const vtypeName={across:'Across vedha',fore:'Fore vedha',hind:'Hind vedha'}[vtype];
+    const vtColor={across:'#ff5555',fore:'#55ff88',hind:'#5588ff'}[vtype];
+    if(isBen)ben++;else mal++;
+
+    // Compute which natal points this planet hits
+    const pos=GRID_POS[nak];
+    let natalHits=[];
+    if(pos){
+      const vCells=getVedhaCells(pos[0],pos[1],vtype);
+      // Check if janma nak or janma rasi is in these cells
+      const jNakPos=GRID_POS[S.jNak];
+      const jRasiCell=[[2,3],[2,4],[2,5],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[5,2],[4,2],[3,2]][S.jRasi];
+      for(const vc of vCells){
+        if(jNakPos&&vc.r===jNakPos[0]&&vc.c===jNakPos[1])natalHits.push('Janma Nak ('+NAKS[S.jNak]+')');
+        if(jRasiCell&&vc.r===jRasiCell[0]&&vc.c===jRasiCell[1])natalHits.push('Janma Rasi ('+RASIF[S.jRasi]+')');
+      }
+    }
+    const hitsStr=natalHits.length?natalHits.join(', '):'No direct natal hit';
+
+    html+=`<div class="vedha-item" onclick="toggleVedha(${i})">
+      <div class="vedha-left">
+        <div class="ppd" style="background:${PCOL[i]};width:32px;height:32px;font-size:11px;flex-shrink:0">${p}</div>
+        <div>
+          <div class="vedha-pname">${PLF[i]}</div>
+          <div class="vedha-info" style="color:${vtColor}">${vtypeName}</div>
+          <div class="vedha-nak">in ${NAKS[nak]}</div>
+        </div>
+      </div>
+      <span class="vtag ${isBen?'vb':'vm'}">${isBen?'Benefic':'Malefic'}</span>
+    </div>
+    <div class="vedha-detail" id="vd-${i}">
+      <div class="vd-row"><span class="vd-label">Planet</span><span class="vd-val">${PLF[i]}</span></div>
+      <div class="vd-row"><span class="vd-label">Vedha type</span><span class="vd-val" style="color:${vtColor}">${vtypeName}</span></div>
+      <div class="vd-row"><span class="vd-label">Transit nakshatra</span><span class="vd-val" style="color:var(--nak-t)">${NAKS[nak]}</span></div>
+      <div class="vd-row"><span class="vd-label">Nature</span><span class="vd-val" style="color:${isBen?'#66ff88':'#ff8888'}">${isBen?'Benefic — favorable influence':'Malefic — exercise caution'}</span></div>
+      <div class="vd-row"><span class="vd-label">Natal points hit</span><span class="vd-val">${hitsStr}</span></div>
+      <div class="vd-row"><span class="vd-label">Effect</span><span class="vd-val">${isBen?'Supports '+VARAF[S.jVara]+' lord — health & vitality':'May disturb '+NAKS[S.jNak]+' lord significations'}</span></div>
+    </div>`;
+  });
+
+  document.getElementById('vedha-list').innerHTML=html;
+  document.getElementById('ben-count').textContent=ben;
+  document.getElementById('mal-count').textContent=mal;
+  document.getElementById('vedha-verdict').innerHTML=ben>mal
+    ?'<strong style="color:#66ff88">Net Benefic</strong> — '+ben+' benefic vs '+mal+' malefic. Favorable period overall. Good time to initiate auspicious activities.'
+    :mal>ben
+    ?'<strong style="color:#ff8888">Net Malefic</strong> — '+mal+' malefic vs '+ben+' benefic. Exercise caution. Avoid starting new ventures until period improves.'
+    :'<strong style="color:var(--gold)">Balanced</strong> — '+ben+' benefic and '+mal+' malefic. Mixed influences. Results depend on individual nakshatra strength.';
+}
+
+function toggleVedha(i){
+  const el=document.getElementById('vd-'+i);
+  const wasOpen=el.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.vedha-detail').forEach(d=>d.classList.remove('open'));
+  if(!wasOpen){
+    el.classList.add('open');
+    S.openVedha=i;
+    // Show vedha lines on SBC grid
+    const nak=S.nakP[i];
+    const pos=GRID_POS[nak];
+    if(pos){
+      const vtype=['Ra','Ke'].includes(PL[i])?'hind':['Mo','Su'].includes(PL[i])?'fore':'across';
+      const vCells=getVedhaCells(pos[0],pos[1],vtype);
+      renderSBC(vCells);
+      // Switch to SBC tab momentarily? No — just show hint
+      document.getElementById('tap-hint').textContent='↑ Vedha lines shown on SBC grid';
+      document.getElementById('tap-hint').style.display='block';
+    }
+  } else {
+    S.openVedha=-1;
+    renderSBC();
+  }
+}
+
+function renderNaks(){
+  const nl=document.getElementById('nak-list');
+  nl.innerHTML=NAKS.map((n,i)=>{
+    const isJ=i===S.jNak;
+    const here=S.nakP?PL.map((p,pi)=>S.nakP[pi]===i?pi:-1).filter(x=>x>=0):[];
+    return`<div class="nrow${isJ?' janma':''}">
+      <span class="nnum">${i===21?'✦':i+1}</span>
+      <span class="nname${isJ?' janma':''}">${n}${isJ?' ★':''}</span>
+      <span class="nlord">${NLORD[i]}</span>
+      <span class="nplanets">${here.map(pi=>`<div class="npd" style="background:${PCOL[pi]}">${PL[pi]}</div>`).join('')}</span>
+    </div>`;
+  }).join('');
+}
+
+function showTab(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('cell-popup').style.display='none';
+}
+
+S.grid=buildGrid();renderSBC();renderNaks();
+</script>
+</body>
+</html>
