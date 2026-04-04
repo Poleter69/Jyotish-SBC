@@ -12,7 +12,8 @@ A complete 9×9 SBC grid with Vedha analysis, built as a mobile-optimized web ap
 - Works fully offline
 
 ## Live App
-https://Poleter69.github.io/jyotishsbc
+https://poleter69.github.io/Jyotish-SBC
+
 
 ## Tech
 Pure HTML + CSS + JS. No frameworks. No dependencies.
